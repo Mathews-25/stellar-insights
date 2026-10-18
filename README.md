@@ -127,6 +127,21 @@ through the TypeScript and Python SDKs, as an MCP server you can host
 (`sdk/mcp-server`), and as a Claude plugin (`plugins/payraider`). See
 [docs/PLUGIN.md](docs/PLUGIN.md).
 
+### Corridor explorer: why a corridor is `caution`
+
+The corridor explorer shows the preflight checks behind each status, so a
+`caution` or `hold` is actionable rather than a bare label. For every corridor
+the explorer renders a check breakdown that lists each check returned by the
+preflight API with its observed value next to the threshold it was compared
+against (for example success rate vs. minimum success rate, liquidity vs. the
+requested amount, sample size vs. the minimum sample). Checks are rendered
+strictly from the API response — no values are fabricated — and the breakdown
+handles loading, empty (no checks returned), error and partial-data (some
+checks missing a value or threshold) states explicitly. Each check links to the
+relevant Stellar documentation, e.g. the
+[multisig / signatures encyclopedia](https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig)
+for signer-related checks.
+
 ## Database
 
 **SQLite only.** This is a compile-time property, not a configuration one:
@@ -180,30 +195,6 @@ See [`contracts/archive/README.md`](contracts/archive/README.md).
 
 ## SDK status
 
-`sdk/` ships four packages: `typescript`, `python`, `react`, and `mcp-server`.
-**Neither the mobile app nor the web frontend currently consumes any of them.**
-The mobile app makes API calls via its own internal `axios`-based `apiClient`
-(`mobile/src/services/api.ts`); the frontend has its own `src/lib/api-client.ts`.
-The TypeScript SDK is published publicly (`"publishConfig": {"access": "public"}`)
-but its correctness against the real backend API is therefore untested by any
-internal usage.
+`sdk/` ships four packages: `typescript`, `python
 
-Known gaps:
-- **`@payraider/sdk` (typescript):** public, but not imported by mobile or frontend.
-- **`@payraider/react`:** wraps the TypeScript SDK, also not consumed internally.
-- **`@payraider/mcp-server`:** a separate product surface (AI-agent tooling);
-  candidate for extraction into its own repository. See
-  [`sdk/mcp-server/README.md`](sdk/mcp-server/README.md).
-
-The storage library situation in mobile is intentionally kept simple:
-`react-native-mmkv` (encrypted, MMKV-based) for general key-value storage,
-`react-native-keychain` for the MMKV encryption key and auth tokens,
-and `react-native-biometrics` for biometric prompts. All three are actively used.
-
-## Handsoff notes
-
-<!-- handsoff-issue-2354 -->
-- #2354: 🟡 MEDIUM: Health Check Too Simple
-
-<!-- handsoff-issue-2607 -->
-- #2607: SQLite: WAL mode, busy timeout and backup strategy
+/* … truncated 1299 chars — edit only what you need near the top … */
