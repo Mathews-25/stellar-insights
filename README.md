@@ -127,20 +127,24 @@ through the TypeScript and Python SDKs, as an MCP server you can host
 (`sdk/mcp-server`), and as a Claude plugin (`plugins/payraider`). See
 [docs/PLUGIN.md](docs/PLUGIN.md).
 
-### Corridor explorer: why a corridor is `caution`
+### Corridors are keyed by asset code **and** issuer
 
-The corridor explorer shows the preflight checks behind each status, so a
-`caution` or `hold` is actionable rather than a bare label. For every corridor
-the explorer renders a check breakdown that lists each check returned by the
-preflight API with its observed value next to the threshold it was compared
-against (for example success rate vs. minimum success rate, liquidity vs. the
-requested amount, sample size vs. the minimum sample). Checks are rendered
-strictly from the API response — no values are fabricated — and the breakdown
-handles loading, empty (no checks returned), error and partial-data (some
-checks missing a value or threshold) states explicitly. Each check links to the
-relevant Stellar documentation, e.g. the
-[multisig / signatures encyclopedia](https://developers.stellar.org/docs/learn/encyclopedia/security/signatures-multisig)
-for signer-related checks.
+A corridor is identified by the full asset, not just its code. `USDC` issued
+by Circle and `USDC` issued by another anchor are **different corridors** with
+different liquidity and risk, so they are tracked and evaluated separately.
+
+Pass the issuer with `CODE:ISSUER` to pin a specific asset:
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/preflight \
+  -H 'content-type: application/json' \
+  -d '{"source_asset":"USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN","destination_asset":"NGN","amount_usd":2500}'
+```
+
+A bare `CODE` (e.g. `USDC`) is still accepted and resolves to the corridor for
+that code; when several issuers exist for the same code, use `CODE:ISSUER` to
+select the one you mean. Malformed asset strings are rejected at the boundary
+with the standard error response.
 
 ## Database
 
@@ -197,4 +201,4 @@ See [`contracts/archive/README.md`](contracts/archive/README.md).
 
 `sdk/` ships four packages: `typescript`, `python
 
-/* … truncated 1299 chars — edit only what you need near the top … */
+/* … truncated 1302 chars — edit only what you need near the top … */
